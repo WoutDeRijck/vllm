@@ -46,11 +46,19 @@ class CompletionOutput:
     finish_reason: str | None = None
     stop_reason: int | str | None = None
     lora_request: LoRARequest | None = None
+    attention_rollout: list[dict[int, float]] | None = None
+    """Attention rollout scores for each generated token.
+    Each element is a dict mapping input_position -> attention_score.
+    Only populated when output_attention_rollout=True in SamplingParams."""
 
     def finished(self) -> bool:
         return self.finish_reason is not None
 
     def __repr__(self) -> str:
+        attention_str = ""
+        if self.attention_rollout:
+            num_tokens = len(self.attention_rollout)
+            attention_str = f", attention_rollout=[{num_tokens} tokens]"
         return (
             f"CompletionOutput(index={self.index}, "
             f"text={self.text!r}, "
@@ -58,7 +66,8 @@ class CompletionOutput:
             f"cumulative_logprob={self.cumulative_logprob}, "
             f"logprobs={self.logprobs}, "
             f"finish_reason={self.finish_reason}, "
-            f"stop_reason={self.stop_reason})"
+            f"stop_reason={self.stop_reason}"
+            f"{attention_str})"
         )
 
 

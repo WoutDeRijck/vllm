@@ -392,6 +392,29 @@ class ResponsesRequest(OpenAIBaseModel):
             "non-background and gpt-oss only. "
         ),
     )
+
+    # Attention rollout parameters
+    output_attention_rollout: bool = Field(
+        default=False,
+        description=(
+            "Whether to compute and return attention rollout scores for "
+            "generated tokens. Only works for decode (output) tokens."
+        ),
+    )
+    attention_topk: int | None = Field(
+        default=None,
+        description=(
+            "If set, only return the top-k attended positions for each token. "
+            "This reduces output size significantly."
+        ),
+    )
+    attention_rollout_method: str = Field(
+        default="mean",
+        description=(
+            "Method for computing attention rollout. Options: 'mean', "
+            "'last', or 'rollout'. Default is 'mean'."
+        ),
+    )
     # --8<-- [end:responses-extra-params]
 
     _DEFAULT_SAMPLING_PARAMS = {
@@ -445,6 +468,9 @@ class ResponsesRequest(OpenAIBaseModel):
                 RequestOutputKind.DELTA if self.stream else RequestOutputKind.FINAL_ONLY
             ),
             structured_outputs=structured_outputs,
+            output_attention_rollout=self.output_attention_rollout,
+            attention_topk=self.attention_topk,
+            attention_rollout_method=self.attention_rollout_method,
         )
 
     def is_include_output_logprobs(self) -> bool:

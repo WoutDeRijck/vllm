@@ -122,6 +122,10 @@ class EngineCoreOutput(
     # The number of tokens with prefix cache hits.
     num_cached_tokens: int = 0
 
+    # Attention rollout scores for generated tokens
+    # List of dicts mapping position -> attention score
+    attention_rollout: list[dict[int, float]] | None = None
+
     @property
     def finished(self) -> bool:
         return self.finish_reason is not None

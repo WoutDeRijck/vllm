@@ -132,6 +132,10 @@ class ModelRunnerOutput:
     # req_id -> num_nans_in_logits
     num_nans_in_logits: dict[str, int] | None = None
 
+    # req_id -> list of attention rollout dicts (one per generated token)
+    # Each dict maps position index -> attention score
+    attention_rollout: dict[str, list[dict[int, float]]] | None = None
+
 
 # ModelRunnerOutput wrapper for async scheduling.
 class AsyncModelRunnerOutput(ABC):
@@ -162,4 +166,5 @@ EMPTY_MODEL_RUNNER_OUTPUT = ModelRunnerOutput(
     prompt_logprobs_dict={},
     pooler_output=[],
     num_nans_in_logits=None,
+    attention_rollout=None,
 )

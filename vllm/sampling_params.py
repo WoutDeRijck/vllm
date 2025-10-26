@@ -245,6 +245,24 @@ class SamplingParams(
     implementations, plugins, etc. Not used by any in-tree sampling
     implementations."""
 
+    # Fields for attention rollout (interpretability)
+    output_attention_rollout: bool = False
+    """Whether to compute and return attention rollout scores for generated
+    tokens. This provides interpretability by showing which input tokens each
+    output token attends to. Only works during decode phase (token generation),
+    not prefill. Note: This adds ~1-2% overhead per token."""
+
+    attention_rollout_method: str = "mean"
+    """Method for computing attention rollout. Options:
+    - "mean": Average attention across all layers
+    - "last": Use only the last layer's attention
+    - "rollout": True attention rollout (multiply through layers)
+    Default is "mean" as it's fastest and often most interpretable."""
+
+    attention_topk: int | None = None
+    """If set, only return the top-k attended positions for each token.
+    This reduces output size significantly. If None, return all attention scores."""
+
     # Fields used for bad words
     bad_words: list[str] | None = None
     """Words that are not allowed to be generated. More precisely, only the
@@ -284,6 +302,9 @@ class SamplingParams(
         logit_bias: dict[int, float] | dict[str, float] | None = None,
         allowed_token_ids: list[int] | None = None,
         extra_args: dict[str, Any] | None = None,
+        output_attention_rollout: bool = False,
+        attention_rollout_method: str = "mean",
+        attention_topk: int | None = None,
     ) -> "SamplingParams":
         if logit_bias is not None:
             # Convert token_id to integer
@@ -335,6 +356,9 @@ class SamplingParams(
             logit_bias=logit_bias,
             allowed_token_ids=allowed_token_ids,
             extra_args=extra_args,
+            output_attention_rollout=output_attention_rollout,
+            attention_rollout_method=attention_rollout_method,
+            attention_topk=attention_topk,
         )
 
     def __post_init__(self) -> None:

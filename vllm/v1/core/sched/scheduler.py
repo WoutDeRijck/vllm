@@ -1020,6 +1020,12 @@ class Scheduler(SchedulerInterface):
 
             # Get prompt logprobs for this request.
             prompt_logprobs_tensors = prompt_logprobs_dict.get(req_id)
+
+            # Get attention rollout for this request if available
+            attention_rollout = None
+            if model_runner_output.attention_rollout:
+                attention_rollout = model_runner_output.attention_rollout.get(req_id)
+
             if new_token_ids or pooler_output is not None or kv_transfer_params:
                 # Add EngineCoreOutput for this Request.
                 outputs[request.client_index].append(
@@ -1035,6 +1041,7 @@ class Scheduler(SchedulerInterface):
                         kv_transfer_params=kv_transfer_params,
                         trace_headers=request.trace_headers,
                         num_cached_tokens=request.num_cached_tokens,
+                        attention_rollout=attention_rollout,
                     )
                 )
             else:
